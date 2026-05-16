@@ -109,6 +109,7 @@ void main() {
                 gi_historyData_unpack4(historyData, transient_gi4Reprojected_fetch(texelPos));
                 gi_historyData_unpack5(historyData, transient_gi5Reprojected_fetch(texelPos));
                 #if SETTING_DEBUG_OUTPUT
+                imageStore(uimg_temp2, texelPos, newDiffuse);
 //                imageStore(uimg_temp1, texelPos, historyData.realHistoryLength.xxxx);
                 #endif
                 barrier();

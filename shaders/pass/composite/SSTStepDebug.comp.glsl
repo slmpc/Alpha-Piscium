@@ -73,7 +73,7 @@ void main() {
             finalColor = mix(finalColor, stepColor, stepAlpha);
         }
 
-        imageStore(uimg_temp5, texelPos, vec4(finalColor, 1.0));
+        // imageStore(uimg_temp5, texelPos, vec4(finalColor, 1.0));
     }
 }
 

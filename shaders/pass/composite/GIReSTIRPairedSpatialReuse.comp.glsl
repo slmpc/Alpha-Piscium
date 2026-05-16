@@ -155,15 +155,17 @@ void main() {
             uvec2 packedDataOther = subgroupShuffleXor(spatialSamplePackedDataMe.xy, 1);
             vec4 xyzw = unpackSnorm4x8(packedDataOther.x);
             vec3 geomNormalOther = coords_octDecode11(xyzw.xy);
+            vec3 viewPosOther = subgroupShuffleXor(viewPosMe, 1);
+            float planeDistance = gi_planeDistance(viewPosMe, sampleMe.geomNormal, viewPosOther, geomNormalOther);
+            float viewZMin = min(abs(viewPosMe.z), abs(viewPosOther.z));
 
-            if (dot(sampleMe.geomNormal, geomNormalOther) > 0.99) {
+            if (dot(sampleMe.geomNormal, geomNormalOther) > 0.99 && planeDistance < viewZMin * 0.01) {
                 uvec4 repMe;
                 if (bool(frameCounter & 1)) {
                     repMe = history_restir_reservoirTemporal1_fetch(texelMe);
                 } else {
                     repMe = history_restir_reservoirTemporal2_fetch(texelMe);
                 }
-                vec3 viewPosOther = subgroupShuffleXor(viewPosMe, 1);
                 vec3 normalOther = nzpacking_unpackNormalOct32(packedDataOther.y);
                 ivec2 texelOther = subgroupShuffleXor(texelMe, 1);
                 ReSTIRReservoir canonResMe = restir_reservoir_unpack(repMe);

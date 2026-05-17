@@ -79,11 +79,9 @@ void main() {
     #ifdef SHADOW_PASS_TRANSLUCENT
     inputAlbedo.rgb *= frag_color;
     #endif
-    #ifdef SHADOW_PASS_ALPHA_TEST
     if (inputAlbedo.a < alphaTestRef) {
         discard;
     }
-    #endif
     #endif
 
     #ifdef SHADOW_PASS_TRANSLUCENT

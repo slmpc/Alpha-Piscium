@@ -42,26 +42,22 @@ fun main(baseRandom: UniformRandomProvider): List<List<Int>> {
     }
 
     fun shuffleGrid(offsetX: Int, offsetY: Int) {
-        val countX = if (offsetX == 0) size / 2 else size / 2 - 1
-        val countY = if (offsetY == 0) size / 2 else size / 2 - 1
-
-        for (y in 0..<countY) {
+        for (y in 0..<size / 2) {
             val dstY = y * 2 + offsetY
-            for (x in 0..<countX) {
+            for (x in 0..<size / 2) {
                 val dstX = x * 2 + offsetX
                 val permuteTemp = IntArray(4)
                 var i = 0
                 for (dy in 0..<2) {
                     for (dx in 0..<2) {
-                        permuteTemp[i++] = pairs[dstY + dy][dstX + dx]
+                        permuteTemp[i++] = pairs[(dstY + dy) % size][(dstX + dx) % size]
                     }
                 }
                 permuteTemp.shuffle(randoms[y][x])
                 i = 0
                 for (dy in 0..<2) {
                     for (dx in 0..<2) {
-                        // 彻底移除 % size
-                        pairs[dstY + dy][dstX + dx] = permuteTemp[i++]
+                        pairs[(dstY + dy) % size][(dstX + dx) % size] = permuteTemp[i++]
                     }
                 }
             }
@@ -69,7 +65,7 @@ fun main(baseRandom: UniformRandomProvider): List<List<Int>> {
     }
 
     repeat(sigmaToShuffleCount(sigma)) {
-        shuffleGrid(it and 1, it and 1)
+        shuffleGrid(it, it)
     }
 
     val pairPos = Array(size * size / 2) { IntArray(5) }

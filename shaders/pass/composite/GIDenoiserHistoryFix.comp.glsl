@@ -19,6 +19,29 @@ layout(rgba16f) uniform writeonly image2D uimg_temp3;
 layout(rgba16f) uniform writeonly image2D uimg_rgba16f;
 layout(rgba8) uniform writeonly image2D uimg_rgba8;
 
+#ifndef SETTING_DENOISER_SPATIAL
+layout(rgb10_a2) uniform writeonly image2D uimg_rgb10_a2;
+layout(r32f) uniform writeonly image2D uimg_r32f;
+
+void storeHistorySurfaceData(ivec2 texelPos, float viewZ) {
+    history_viewZ_store(texelPos, vec4(viewZ));
+
+    if (viewZ > -65536.0) {
+        vec3 geomNormal = transient_geomViewNormal_fetch(texelPos).xyz;
+        vec3 normal = transient_viewNormal_fetch(texelPos).xyz;
+        float roughness = max(pow2(transient_specularPBRData_fetch(texelPos).r), 0.001);
+
+        history_geomViewNormal_store(texelPos, vec4(geomNormal, 0.0));
+        history_viewNormal_store(texelPos, vec4(normal, 0.0));
+        history_roughness_store(texelPos, vec4(roughness, 0.0, 0.0, 0.0));
+    } else {
+        history_geomViewNormal_store(texelPos, vec4(0.0));
+        history_viewNormal_store(texelPos, vec4(0.0));
+        history_roughness_store(texelPos, vec4(0.0));
+    }
+}
+#endif
+
 #ifdef SETTING_DENOISER_FAST_HISTORY_CLAMPING
 // Shared memory with padding for 5x5 tap (-2 to +2)
 // Each work group is 16x16, need +2 padding on each side for 5x5 taps
@@ -103,6 +126,10 @@ void main() {
 
         if (all(lessThan(texelPos, uval_mainImageSizeI))) {
             float viewZ = texelFetch(usam_gbufferSolidViewZ, texelPos, 0).x;
+            #ifndef SETTING_DENOISER_SPATIAL
+            storeHistorySurfaceData(texelPos, viewZ);
+            #endif
+
             if (viewZ > -65536.0) {
                 // No need to load fast colors here because they are already in the shared memory
                 GIHistoryData historyData = gi_historyData_init();

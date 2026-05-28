@@ -114,7 +114,7 @@ float dstToSrcTargetPHat
         metaDST.numValidNeighbors += 1u;
 
         float neighborWi = abs(srcToDst.targetPHat) * max(canonAvgWYSRC, 0.0) * mi_DST;
-        float neighborRand = rand_stbnVec1(rand_newStbnPos(texelDST, RANDOM_FRAME / 64u + 4u + PASS_INDEX), RANDOM_FRAME);
+        float neighborRand = restir_updateRand(texelDST, 3337u + PASS_INDEX);
         if (restir_updateReservoirM(metaDST.accumM, metaDST.spatialWSum, neighborWi, canonMSRC, neighborRand)) {
             metaDST.selectedTexel = texelSRC;
         }

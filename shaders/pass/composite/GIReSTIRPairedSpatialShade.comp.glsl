@@ -95,7 +95,7 @@ void main() {
 
             float rcAvgWY = max(spatialReservoir.avgWY, 0.0);
             float canonicalWi = centerSampleData.sampleValue.w * rcAvgWY * mc;
-            float canonicalRand = rand_stbnVec1(rand_newStbnPos(texelPos, RANDOM_FRAME / 64u + 4u + 8u), RANDOM_FRAME);
+            float canonicalRand = restir_updateRand(texelPos, 3336u);
 
             bool chooseCanon = restir_updateReservoir(
                 spatialReservoir,

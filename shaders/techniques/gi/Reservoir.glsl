@@ -80,6 +80,10 @@ bool restir_isReservoirValid(ReSTIRReservoir reservoir) {
 
 const float EPSILON = 0.0000001;
 
+float restir_updateRand(ivec2 texelPos, uint randSeed) {
+    return hash_uintToFloat(hash_44_q3(uvec4(texelPos, frameCounter, randSeed)).x);
+}
+
 bool restir_updateReservoir(inout ReSTIRReservoir reservoir, inout float wSum, vec4 X, float wi, float m, float rand) {
     wSum += wi;
     reservoir.m += m;

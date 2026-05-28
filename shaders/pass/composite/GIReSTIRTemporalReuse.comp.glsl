@@ -43,7 +43,7 @@ void sampleTemporalNeighbor(
     ivec2 texelPos,
     ivec2 neighborTexelPos,
     float combinedWeight,
-    uint randSeedOffset,
+    uint randSeed,
     vec3 viewPos,
     vec3 V,
     vec3 centerNormal,
@@ -117,7 +117,7 @@ void sampleTemporalNeighbor(
                 float ratio = max(neighborPHat * safeRcp(neighborSample.w), neighborSample.w * safeRcp(neighborPHat));
                 neighborReservoir.m *= inversesqrt(max(ratio, 1.0));
                 float wi = max(0.0, neighborReservoir.avgWY) * neighborReservoir.m * neighborPHat;
-                float neighborRand = rand_stbnVec1(rand_newStbnPos(texelPos, randSeedOffset), RANDOM_FRAME);
+                float neighborRand = restir_updateRand(texelPos, randSeed);
 
                 if (restir_updateReservoir(reservoir, wSum, neighborReservoir.Y, wi, neighborReservoir.m, neighborRand)) {
                     prevSample = vec4(neighborSample.xyz, neighborPHat);
@@ -164,7 +164,6 @@ void main() {
                 vec3 centerNormal = normalize(transient_viewNormal_fetch(texelPos).xyz * 2.0 - 1.0);
                 ResampleMaterial material = resampleMaterial_unpack(transient_restir_resampleMaterial_fetch(texelPos));
 
-                uint baseRandSeed = RANDOM_FRAME / 64u + 2u;
                 vec2 curr2PrevTexelPos = reprojInfo.curr2PrevScreenPos * uval_mainImageSize;
                 curr2PrevTexelPos = clamp(curr2PrevTexelPos, vec2(0.5), uval_mainImageSize - 0.5);
                 vec2 gatherTexelPos = floor(curr2PrevTexelPos - 0.5) + 1.0;
@@ -187,19 +186,19 @@ void main() {
                 //   w = bottom-left  iGatherTexelPos + (-1, -1)
                 {
                     float combinedWeight = bilinearWeights4.x * reprojInfo.bilateralWeights.x * reprojInfo.historyResetFactor;
-                    sampleTemporalNeighbor(texelPos, iGatherTexelPos + ivec2(-1, 0), combinedWeight, baseRandSeed + 1u, viewPos, V, centerNormal, material, oddFrame, temporalReservoir, wSum, prevSample, prevHitNormal);
+                    sampleTemporalNeighbor(texelPos, iGatherTexelPos + ivec2(-1, 0), combinedWeight, 3331u, viewPos, V, centerNormal, material, oddFrame, temporalReservoir, wSum, prevSample, prevHitNormal);
                 }
                 {
                     float combinedWeight = bilinearWeights4.y * reprojInfo.bilateralWeights.y * reprojInfo.historyResetFactor;
-                    sampleTemporalNeighbor(texelPos, iGatherTexelPos, combinedWeight, baseRandSeed + 2u, viewPos, V, centerNormal, material, oddFrame, temporalReservoir, wSum, prevSample, prevHitNormal);
+                    sampleTemporalNeighbor(texelPos, iGatherTexelPos, combinedWeight, 3332u, viewPos, V, centerNormal, material, oddFrame, temporalReservoir, wSum, prevSample, prevHitNormal);
                 }
                 {
                     float combinedWeight = bilinearWeights4.z * reprojInfo.bilateralWeights.z * reprojInfo.historyResetFactor;
-                    sampleTemporalNeighbor(texelPos, iGatherTexelPos + ivec2(0, -1), combinedWeight, baseRandSeed + 3u, viewPos, V, centerNormal, material, oddFrame, temporalReservoir, wSum, prevSample, prevHitNormal);
+                    sampleTemporalNeighbor(texelPos, iGatherTexelPos + ivec2(0, -1), combinedWeight, 3333u, viewPos, V, centerNormal, material, oddFrame, temporalReservoir, wSum, prevSample, prevHitNormal);
                 }
                 {
                     float combinedWeight = bilinearWeights4.w * reprojInfo.bilateralWeights.w * reprojInfo.historyResetFactor;
-                    sampleTemporalNeighbor(texelPos, iGatherTexelPos + ivec2(-1, -1), combinedWeight, baseRandSeed + 4u, viewPos, V, centerNormal, material, oddFrame, temporalReservoir, wSum, prevSample, prevHitNormal);
+                    sampleTemporalNeighbor(texelPos, iGatherTexelPos + ivec2(-1, -1), combinedWeight, 3334u, viewPos, V, centerNormal, material, oddFrame, temporalReservoir, wSum, prevSample, prevHitNormal);
                 }
             }
 
@@ -233,7 +232,7 @@ void main() {
                 float samplePdf = initialSample.pdf;
                 float newWi = newPHat * safeRcp(samplePdf);
 
-                float reservoirRand1 = rand_stbnVec1(rand_newStbnPos(texelPos, RANDOM_FRAME / 64u + 6u), RANDOM_FRAME);
+                float reservoirRand1 = restir_updateRand(texelPos, 3335u);
 
                 vec4 finalSample = vec4(prevSample);
                 vec3 hitNormal = normalize(vec3(prevHitNormal));

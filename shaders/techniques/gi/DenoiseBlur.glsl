@@ -185,8 +185,8 @@ void main() {
             vec4 historyData5 = transient_gi5Reprojected_fetch(texelPos);
             float historyLength = max(historyData5.x * TOTAL_HISTORY_LENGTH, 1.0);
             float specularHistoryLength = max(historyData5.y * TOTAL_HISTORY_LENGTH, 1.0);
-            float diffAccumFactor = rcp(1.0 + pow2(0.1 * historyLength));
-            float specAccumFactor = rcp(1.0 + pow2(0.1 * specularHistoryLength));
+            float diffAccumFactor = rcp(1.0 + pow2(0.05 * historyLength));
+            float specAccumFactor = rcp(1.0 + pow2(0.05 * specularHistoryLength));
 
             vec2 hitDistFactor = hitDistanceFactors;
             #if GI_DENOISE_PASS == 2
@@ -208,8 +208,8 @@ void main() {
                 float kernelRadius = baseKernelRadius.x;
                 kernelRadius *= diffAccumFactor;
                 kernelRadius += filteredInputVariance.x * baseKernelRadius.y;
-                kernelRadius *= hitDistFactor.x;
                 kernelRadius = clamp(kernelRadius, baseKernelRadius.z, baseKernelRadius.w);
+                kernelRadius *= hitDistFactor.x;
                 float diffInvAccumFactor = saturate(1.0 - diffAccumFactor); // Increases as history accumulates
 
                 vec3 V = normalize(-centerGeomData.viewPos);
@@ -324,9 +324,9 @@ void main() {
                 float kernelRadius = baseKernelRadius.x;
                 kernelRadius *= specAccumFactor;
                 kernelRadius += filteredInputVariance.y * baseKernelRadius.y;
+                kernelRadius = clamp(kernelRadius, baseKernelRadius.z, baseKernelRadius.w);
                 kernelRadius *= hitDistFactor.y;
                 kernelRadius *= pow(centerGeomData.roughness, 0.25 * historyData5.y);
-                kernelRadius = clamp(kernelRadius, baseKernelRadius.z, baseKernelRadius.w);
                 float worldRadius = kernelRadius * abs(centerGeomData.viewPos.z) * uval_mainImageSizeRcp.y;
                 vec3 specTFP32, specBFP32;
                 getSpecularKernelBasis(

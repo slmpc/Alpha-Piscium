@@ -111,7 +111,7 @@ void computeEdgeWeights(
     edgeFlagI |= uint(any(lessThan(roughnessWeights, vec4(0.9))));
     edgeFlag = bool(edgeFlagI);
 
-    vec4 geomNormalWeights = pow(geomViewNormalDots, vec4(256.0));
+    vec4 geomNormalWeights = smoothstep(0.95, 1.0, geomViewNormalDots);
     vec4 normalWeights = pow(viewNormalDots, vec4(normalBaseWeight));
     float geomDepthBaseWeight = mix(32.0, 4.0, totalEdgeFactor) * mix(4.0, 1.0, glazingAngleFactor);
     vec4 geomDepthWeights = exp2(-geomDepthBaseWeight * (planeDistances / max(abs(curr2PrevViewPos.z), 2.0)));
@@ -170,7 +170,7 @@ void gi_reproject(ivec2 texelPos, float currViewZ) {
                 currViewGeomNormal,
                 curr2PrevViewPos.xyz,
                 glazingAngleFactor,
-                1.0,
+                4.0,
                 roughnessWeights,
                 extraNormalWeights,
                 edgeWeights,
@@ -362,7 +362,7 @@ void gi_reproject(ivec2 texelPos, float currViewZ) {
                 ReprojectInfo reprojInfo = reprojectInfo_init();
                 // Most edge values are very close to 1.0
                 // And we also want stricter weights for ReSTIR temporal
-                reprojInfo.bilateralWeights = pow(edgeWeights * pow(extraNormalWeights, vec4(128.0)), vec4(16.0));
+                reprojInfo.bilateralWeights = edgeWeights * extraNormalWeights;
                 reprojInfo.curr2PrevScreenPos = curr2PrevScreen;
                 reprojInfo.historyResetFactor = historyResetFactor;
                 transient_gi_diffuse_reprojInfo_store(texelPos, reprojectInfo_pack(reprojInfo));
@@ -423,7 +423,7 @@ void gi_reproject(ivec2 texelPos, float currViewZ) {
                     currViewGeomNormal,
                     curr2PrevViewPos.xyz,
                     glazingAngleFactor,
-                    96.0 * mirrorParallaxFactor + 32.0,
+                    64.0 * mirrorParallaxFactor + 32.0,
                     roughnessWeights,
                     extraNormalWeights,
                     edgeWeights,
@@ -461,7 +461,7 @@ void gi_reproject(ivec2 texelPos, float currViewZ) {
                         ReprojectInfo reprojInfo = reprojectInfo_unpack(transient_gi_diffuse_reprojInfo_load(texelPos));
                         // Most edge values are very close to 1.0
                         // And we also want stricter weights for ReSTIR temporal
-                        reprojInfo.bilateralWeights = pow(edgeWeights, vec4(16.0));
+                        reprojInfo.bilateralWeights = edgeWeights;
                         reprojInfo.curr2PrevScreenPos = virtualPrevScreen;
                         transient_gi_diffuse_reprojInfo_store(texelPos, reprojectInfo_pack(reprojInfo));
                     }

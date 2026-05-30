@@ -6,8 +6,6 @@ import java.util.zip.ZipOutputStream
 import kotlin.io.path.*
 
 fun makeZip(zipFilePath: Path) {
-    val java = System.getProperty("java.home")
-
     val currDirPath = Path("").absolute()
     val projectRootPath = currDirPath.parent
     val shadesmithJarPath = currDirPath.resolve("shadesmith.jar")
@@ -22,6 +20,9 @@ fun makeZip(zipFilePath: Path) {
             }
         }
     }
+
+    val java = config.getProperty("JAVA_PATH")?.takeIf { it.isNotBlank() }
+        ?: System.getProperty("java.home")
 
     val shdesmithOutputPathStr = config.getOrDefault("SHADESMITH_OUTPUT", "./shadesmitth").toString()
     val shadesmithOutputPath = Path(shdesmithOutputPathStr).normalize().absolute()

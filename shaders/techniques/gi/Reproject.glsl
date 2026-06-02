@@ -111,7 +111,7 @@ void computeEdgeWeights(
     edgeFlagI |= uint(any(lessThan(roughnessWeights, vec4(0.9))));
     edgeFlag = bool(edgeFlagI);
 
-    vec4 geomNormalWeights = smoothstep(0.95, 1.0, geomViewNormalDots);
+    vec4 geomNormalWeights = pow(geomViewNormalDots, vec4(256.0));
     vec4 normalWeights = pow(viewNormalDots, vec4(normalBaseWeight));
     float geomDepthBaseWeight = mix(32.0, 4.0, totalEdgeFactor) * mix(4.0, 1.0, glazingAngleFactor);
     vec4 geomDepthWeights = exp2(-geomDepthBaseWeight * (planeDistances / max(abs(curr2PrevViewPos.z), 2.0)));

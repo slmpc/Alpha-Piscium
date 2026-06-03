@@ -215,16 +215,24 @@ void main() {
                 //   w = bottom-left  iGatherTexelPos + (-1, -1)
                 if (bilinearWeights4.x > bilinearWeights4.y && bilinearWeights4.x > bilinearWeights4.z && bilinearWeights4.x > bilinearWeights4.w) {
                     float combinedWeight = reprojInfo.bilateralWeights.x * reprojInfo.historyResetFactor;
-                    sampleTemporalNeighbor(texelPos, iGatherTexelPos + ivec2(-1, 0), combinedWeight, 3331u, viewPos, V, gData.normal, resampleMaterial, oddFrame, temporalReservoir, wSum, finalSample, finalHitNormal);
-               } else if (bilinearWeights4.y > bilinearWeights4.z && bilinearWeights4.y > bilinearWeights4.w) {
+                    if (reprojInfo.bilateralWeights.x > 0.9) {
+                        sampleTemporalNeighbor(texelPos, iGatherTexelPos + ivec2(-1, 0), combinedWeight, 3331u, viewPos, V, gData.normal, resampleMaterial, oddFrame, temporalReservoir, wSum, finalSample, finalHitNormal);
+                    }
+                } else if (bilinearWeights4.y > bilinearWeights4.z && bilinearWeights4.y > bilinearWeights4.w) {
                     float combinedWeight = reprojInfo.bilateralWeights.y * reprojInfo.historyResetFactor;
-                    sampleTemporalNeighbor(texelPos, iGatherTexelPos, combinedWeight, 3332u, viewPos, V, gData.normal, resampleMaterial, oddFrame, temporalReservoir, wSum, finalSample, finalHitNormal);
+                    if (reprojInfo.bilateralWeights.y > 0.9) {
+                        sampleTemporalNeighbor(texelPos, iGatherTexelPos, combinedWeight, 3332u, viewPos, V, gData.normal, resampleMaterial, oddFrame, temporalReservoir, wSum, finalSample, finalHitNormal);
+                    }
                 } else if (bilinearWeights4.z > bilinearWeights4.w) {
                     float combinedWeight = reprojInfo.bilateralWeights.z * reprojInfo.historyResetFactor;
-                    sampleTemporalNeighbor(texelPos, iGatherTexelPos + ivec2(0, -1), combinedWeight, 3333u, viewPos, V, gData.normal, resampleMaterial, oddFrame, temporalReservoir, wSum, finalSample, finalHitNormal);
+                    if (reprojInfo.bilateralWeights.z > 0.9) {
+                        sampleTemporalNeighbor(texelPos, iGatherTexelPos + ivec2(0, -1), combinedWeight, 3333u, viewPos, V, gData.normal, resampleMaterial, oddFrame, temporalReservoir, wSum, finalSample, finalHitNormal);
+                    }
                 } else {
                     float combinedWeight = reprojInfo.bilateralWeights.w * reprojInfo.historyResetFactor;
-                    sampleTemporalNeighbor(texelPos, iGatherTexelPos + ivec2(-1, -1), combinedWeight, 3334u, viewPos, V, gData.normal, resampleMaterial, oddFrame, temporalReservoir, wSum, finalSample, finalHitNormal);
+                    if (reprojInfo.bilateralWeights.w > 0.9) {
+                        sampleTemporalNeighbor(texelPos, iGatherTexelPos + ivec2(-1, -1), combinedWeight, 3334u, viewPos, V, gData.normal, resampleMaterial, oddFrame, temporalReservoir, wSum, finalSample, finalHitNormal);
+                    }
                 }
             }
 

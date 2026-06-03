@@ -39,6 +39,7 @@ struct GeomData {
     vec3 normal;
     vec3 viewPos;
     float roughness;
+    float dielectric;
 };
 
 GeomData _gi_readGeomData(ivec2 texelPos, vec2 screenPos) {
@@ -47,7 +48,9 @@ GeomData _gi_readGeomData(ivec2 texelPos, vec2 screenPos) {
     geomData.viewPos = coords_toViewCoord(screenPos, viewZ, global_camProjInverse);
     geomData.geomNormal = transient_geomViewNormal_fetch(texelPos).xyz * 2.0 - 1.0;
     geomData.normal = transient_viewNormal_fetch(texelPos).xyz * 2.0 - 1.0;
-    geomData.roughness = max(pow2(transient_specularPBRData_fetch(texelPos).r), 0.001);
+    vec4 specularPBRData = transient_specularPBRData_fetch(texelPos);
+    geomData.roughness = max(pow2(specularPBRData.x), 0.001);
+    geomData.dielectric = specularPBRData.y;
     return geomData;
 }
 
@@ -251,7 +254,8 @@ void main() {
 
                     float baseNormalWeight = diffInvAccumFactor * 64.0 + 16.0;
                     float basePlaneDistWeight = diffInvAccumFactor * -256.0 - 128.0;
-                    float edgeWeightFP32 = normalWeight(centerGeomData, geomData, baseNormalWeight);
+                    float edgeWeightFP32 = geomData.dielectric;
+                    edgeWeightFP32 *= normalWeight(centerGeomData, geomData, baseNormalWeight);
                     edgeWeightFP32 *= planeDistanceWeight(
                         centerGeomData.viewPos,
                         centerGeomData.geomNormal,

@@ -60,7 +60,6 @@ void sampleTemporalNeighbor(
         : history_restir_reservoirTemporal1_fetch(neighborTexelPos);
         ReSTIRReservoir neighborReservoir = restir_reservoir_unpack(prevTemporalReservoirData);
         if (restir_isReservoirValid(neighborReservoir)) {
-
             vec3 neighborHitNormal = vec3(0.0);
 
             bool valid = true;
@@ -79,9 +78,7 @@ void sampleTemporalNeighbor(
 
                 vec4 prev2CurrHitClipPos = global_camProj * vec4(prev2CurrHitViewPos, 1.0);
                 uint clipFlag = uint(prev2CurrHitClipPos.z > 0.0);
-                clipFlag &= uint(all(lessThan(abs(prev2CurrHitClipPos.xy), prev2CurrHitClipPos.ww)));
-                vec3 prev2CurrHitScreenPos = vec3(prev2CurrHitClipPos.xy / prev2CurrHitClipPos.w * 0.5 + 0.5, prev2CurrHitClipPos.z / prev2CurrHitClipPos.w);
-                clipFlag &= uint(saturate(prev2CurrHitScreenPos) == prev2CurrHitScreenPos);
+                clipFlag &= uint(all(lessThan(abs(prev2CurrHitClipPos.xyz), prev2CurrHitClipPos.www)));
 
                 if (!bool(clipFlag)) {
                     valid = false;
@@ -153,31 +150,28 @@ void main() {
 
             vec3 V = normalize(-viewPos);
 
-            float wSum = 0.0;
-
             GBufferData gData = gbufferData_init();
             gbufferData1_unpack(texelFetch(usam_gbufferSolidData1, texelPos, 0), gData);
             gbufferData2_unpack(texelFetch(usam_gbufferSolidData2, texelPos, 0), gData);
             Material material = material_decode(gData);
-            ResampleMaterial resampleMaterial = resampleMaterial_fromMaterial(material);
 
             float hitDistance = transient_gi_initialSampleHitDistance_fetch(texelPos).x;
             restir_InitialSampleData initialSample = restir_initalSample_restoreData(texelPos, viewZ, gData.geomNormal, gData.normal, material, hitDistance);
-            vec3 hitRadiance = initialSample.hitRadiance;
             vec3 sampleDirView = initialSample.directionAndLength.xyz;
-            float newPHat = evalTargetFunction(hitRadiance, gData.normal, sampleDirView, V, resampleMaterial);
             float samplePdf = initialSample.pdf;
-            float newWi = newPHat * safeRcp(samplePdf);
+            ResampleMaterial resampleMaterial = resampleMaterial_fromMaterial(material);
 
             vec4 finalSample = vec4(0.0);
             vec3 finalHitNormal = vec3(0.0);
 
+            float wSum = 0.0;
             if (samplePdf > 0.0) {
                 temporalReservoir.Y = vec4(sampleDirView, hitDistance);
                 temporalReservoir.m = 1.0;
-                wSum = newWi;
+                float newPHat = evalTargetFunction(initialSample.hitRadiance, gData.normal, sampleDirView, V, resampleMaterial);
+                wSum = newPHat * rcp(samplePdf);
 
-                finalSample = vec4(hitRadiance, newPHat);
+                finalSample = vec4(initialSample.hitRadiance, newPHat);
 
                 vec3 hitViewPos = viewPos + sampleDirView * hitDistance;
                 vec3 hitScreenPos = coords_viewToScreen(hitViewPos, global_camProj);
@@ -201,16 +195,16 @@ void main() {
             if (reprojInfo.historyResetFactor > ageResetRand) {
                 vec2 curr2PrevTexelPos = reprojInfo.curr2PrevScreenPos * uval_mainImageSize;
                 curr2PrevTexelPos = clamp(curr2PrevTexelPos, vec2(0.5), uval_mainImageSize - 0.5);
-                vec2 gatherTexelPos = floor(curr2PrevTexelPos - 0.5) + 1.0;
-                vec2 pixelPosFract = fract(curr2PrevTexelPos - 0.5);
-                vec2 bilinearWeights2 = pixelPosFract;
-                vec4 bilinearWeights4;
-                bilinearWeights4.yz = bilinearWeights2.xx;
-                bilinearWeights4.xw = 1.0 - bilinearWeights2.xx;
-                bilinearWeights4.xy *= bilinearWeights2.yy;
-                bilinearWeights4.zw *= 1.0 - bilinearWeights2.yy;
+                vec2 prevBase = curr2PrevTexelPos - 0.5;
+                ivec2 iGatherTexelPos = ivec2(floor(prevBase) + 1.0);
+                vec2 f = fract(prevBase);
+                vec4 bilinearWeights4 = vec4(
+                    (1.0 - f.x) * f.y,
+                    f.x * f.y,
+                    f.x * (1.0 - f.y),
+                    (1.0 - f.x) * (1.0 - f.y)
+                );
 
-                ivec2 iGatherTexelPos = ivec2(gatherTexelPos);
                 bool oddFrame = bool(frameCounter & 1);
 
                 // 4-tap bilinear temporal gather

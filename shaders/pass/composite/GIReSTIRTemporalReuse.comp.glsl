@@ -213,20 +213,17 @@ void main() {
                 //   y = top-right   iGatherTexelPos + ( 0,  0)
                 //   z = bottom-right iGatherTexelPos + ( 0, -1)
                 //   w = bottom-left  iGatherTexelPos + (-1, -1)
-                {
-                    float combinedWeight = bilinearWeights4.x * reprojInfo.bilateralWeights.x * reprojInfo.historyResetFactor;
+                if (bilinearWeights4.x > bilinearWeights4.y && bilinearWeights4.x > bilinearWeights4.z && bilinearWeights4.x > bilinearWeights4.w) {
+                    float combinedWeight = reprojInfo.bilateralWeights.x * reprojInfo.historyResetFactor;
                     sampleTemporalNeighbor(texelPos, iGatherTexelPos + ivec2(-1, 0), combinedWeight, 3331u, viewPos, V, gData.normal, resampleMaterial, oddFrame, temporalReservoir, wSum, finalSample, finalHitNormal);
-                }
-                {
-                    float combinedWeight = bilinearWeights4.y * reprojInfo.bilateralWeights.y * reprojInfo.historyResetFactor;
+               } else if (bilinearWeights4.y > bilinearWeights4.z && bilinearWeights4.y > bilinearWeights4.w) {
+                    float combinedWeight = reprojInfo.bilateralWeights.y * reprojInfo.historyResetFactor;
                     sampleTemporalNeighbor(texelPos, iGatherTexelPos, combinedWeight, 3332u, viewPos, V, gData.normal, resampleMaterial, oddFrame, temporalReservoir, wSum, finalSample, finalHitNormal);
-                }
-                {
-                    float combinedWeight = bilinearWeights4.z * reprojInfo.bilateralWeights.z * reprojInfo.historyResetFactor;
+                } else if (bilinearWeights4.z > bilinearWeights4.w) {
+                    float combinedWeight = reprojInfo.bilateralWeights.z * reprojInfo.historyResetFactor;
                     sampleTemporalNeighbor(texelPos, iGatherTexelPos + ivec2(0, -1), combinedWeight, 3333u, viewPos, V, gData.normal, resampleMaterial, oddFrame, temporalReservoir, wSum, finalSample, finalHitNormal);
-                }
-                {
-                    float combinedWeight = bilinearWeights4.w * reprojInfo.bilateralWeights.w * reprojInfo.historyResetFactor;
+                } else {
+                    float combinedWeight = reprojInfo.bilateralWeights.w * reprojInfo.historyResetFactor;
                     sampleTemporalNeighbor(texelPos, iGatherTexelPos + ivec2(-1, -1), combinedWeight, 3334u, viewPos, V, gData.normal, resampleMaterial, oddFrame, temporalReservoir, wSum, finalSample, finalHitNormal);
                 }
             }

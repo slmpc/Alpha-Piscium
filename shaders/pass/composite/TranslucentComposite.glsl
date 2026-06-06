@@ -16,7 +16,7 @@
 #include "/util/BSDF.glsl"
 
 layout(local_size_x = 16, local_size_y = 16) in;
-const vec2 workGroupsRender = vec2(1.0, 1.0);
+const vec2 workGroupsRender = vec2(SETTING_RENDER_SCALE, SETTING_RENDER_SCALE);
 
 layout(rgba16f) uniform restrict writeonly image2D uimg_rgba16f;
 layout(rgba16f) uniform restrict image2D uimg_main;
@@ -34,19 +34,19 @@ void main() {
         float waterStartViewZ = -texelFetch(usam_csr32f, waterNearDepthTexelPos, 0).r;
         float translucentStartViewZ = -texelFetch(usam_csr32f, translucentNearDepthTexelPos, 0).r;
         //            float endViewZ = -texelFetch(usam_csr32f, farDepthTexelPos, 0).r;
-        //            float startViewZ = texelFetch(usam_gbufferSolidViewZ, texelPos, 0).r;
+        //            float startViewZ = texelFetch(usam_gbufferSolidViewZ, coords_renderTexelToViewTexel(texelPos), 0).r;
         float startViewZ = max(translucentStartViewZ, waterStartViewZ);
 
 
-        float solidViewZ = texelFetch(usam_gbufferSolidViewZ, texelPos, 0).r;
+        float solidViewZ = texelFetch(usam_gbufferSolidViewZ, coords_renderTexelToViewTexel(texelPos), 0).r;
 
         if (startViewZ > -65536.0 && startViewZ > solidViewZ) {
             vec2 screenPos = coords_texelToUV(texelPos, uval_mainImageSizeRcp);
             vec3 startViewPos = coords_toViewCoord(screenPos, startViewZ, global_camProjInverse);
 
             GBufferData gData = gbufferData_init();
-            gbufferData1_unpack(texelFetch(usam_gbufferTranslucentData1, texelPos, 0), gData);
-            gbufferData2_unpack(texelFetch(usam_gbufferTranslucentData2, texelPos, 0), gData);
+            gbufferData1_unpack(texelFetch(usam_gbufferTranslucentData1, coords_renderTexelToViewTexel(texelPos), 0), gData);
+            gbufferData2_unpack(texelFetch(usam_gbufferTranslucentData2, coords_renderTexelToViewTexel(texelPos), 0), gData);
 
             Material material = material_decode(gData);
 

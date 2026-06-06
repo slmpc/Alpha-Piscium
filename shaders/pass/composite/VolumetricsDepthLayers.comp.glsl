@@ -9,7 +9,7 @@
 #include "/techniques/textile/CSRG32F.glsl"
 
 layout(local_size_x = 16, local_size_y = 16) in;
-const vec2 workGroupsRender = vec2(1.0, 1.0);
+const vec2 workGroupsRender = vec2(SETTING_RENDER_SCALE, SETTING_RENDER_SCALE);
 
 layout(rg32ui) uniform writeonly uimage2D uimg_rg32ui;
 
@@ -81,7 +81,7 @@ void main() {
         shared_shadowAABBMin[gl_LocalInvocationIndex] = vec3(0.0);
     }
 
-    float solid = texelFetch(usam_gbufferSolidViewZ, texelPos, 0).r;
+    float solid = texelFetch(usam_gbufferSolidViewZ, coords_renderTexelToViewTexel(texelPos), 0).r;
     vec2 layer1 = vec2(-FLT_MAX);
     vec2 layer2 = vec2(-FLT_MAX);
     vec2 layer3 = vec2(-FLT_MAX);

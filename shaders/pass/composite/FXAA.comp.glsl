@@ -1,7 +1,7 @@
 #include "/util/Colors2.glsl"
 
 layout(local_size_x = 16, local_size_y = 16) in;
-const vec2 workGroupsRender = vec2(1.0, 1.0);
+const vec2 workGroupsRender = vec2(SETTING_RENDER_SCALE, SETTING_RENDER_SCALE);
 
 layout(rgba16f) uniform restrict image2D uimg_rgba16f;
 
@@ -123,4 +123,3 @@ void main() {
         transient_fxaaOutput_store(texelPos, outputData);
     }
 }
-

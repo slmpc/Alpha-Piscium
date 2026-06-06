@@ -7,7 +7,7 @@
 #include "/techniques/ffx/spd/SPD.comp.glsl"
 
 layout(rg32f) uniform coherent image2D uimg_hiz;
-const vec2 workGroupsRender = vec2(0.25, 0.25);
+const vec2 workGroupsRender = vec2(0.25 * SETTING_RENDER_SCALE, 0.25 * SETTING_RENDER_SCALE);
 
 vec4 spd_reduce4(vec4 v0, vec4 v1, vec4 v2, vec4 v3) {
     vec4 result = vec4(0.0);
@@ -16,7 +16,8 @@ vec4 spd_reduce4(vec4 v0, vec4 v1, vec4 v2, vec4 v3) {
     return result;
 }
 vec2 spd_loadInput(ivec2 texelPos, uint slice) {
-    float viewZ = texelFetch(usam_gbufferSolidViewZ, clamp(texelPos, ivec2(0), uval_mainImageSizeI - 1), 0).r;
+    ivec2 readPos = coords_renderTexelToViewTexel(clamp(texelPos, ivec2(0), uval_mainImageSizeI - 1));
+    float viewZ = texelFetch(usam_gbufferSolidViewZ, readPos, 0).r;
     float revZ = coords_viewZToReversedZ(viewZ, near);
     if (all(lessThan(texelPos, uval_mainImageSizeI))){
         imageStore(uimg_hiz, texelPos, vec4(revZ));

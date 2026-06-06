@@ -10,7 +10,7 @@
 #include "/techniques/gi/PairwiseMIS.glsl"
 
 layout(local_size_x = 16, local_size_y = 16) in;
-const vec2 workGroupsRender = vec2(1.0, 1.0);
+const vec2 workGroupsRender = vec2(SETTING_RENDER_SCALE, SETTING_RENDER_SCALE);
 
 layout(std430, binding = 5) buffer RayData {
     uvec4 ssbo_rayData[];
@@ -82,7 +82,7 @@ void main() {
             vec4 selectedSampleF = centerSampleData.sampleValue;
             if (winTexel != texelPos) {
                 SpatialSampleData winSample = spatialSampleData_unpack(transient_restir_spatialInput_fetch(winTexel));
-                float winViewZ = texelFetch(usam_gbufferSolidViewZ, winTexel, 0).x;
+                float winViewZ = texelFetch(usam_gbufferSolidViewZ, coords_renderTexelToViewTexel(winTexel), 0).x;
                 vec2 winScreenPos = coords_texelToUV(winTexel, uval_mainImageSizeRcp);
                 vec3 winViewPos = coords_toViewCoord(winScreenPos, winViewZ, global_camProjInverse);
 

@@ -8,7 +8,7 @@
 #include "/util/AgxInvertible.glsl"
 
 layout(local_size_x = 16, local_size_y = 16) in;
-const vec2 workGroupsRender = vec2(1.0, 1.0);
+const vec2 workGroupsRender = vec2(SETTING_RENDER_SCALE, SETTING_RENDER_SCALE);
 
 layout(rgba16f) uniform restrict writeonly image2D uimg_temp3;
 layout(rgba16f) uniform writeonly image2D uimg_rgba16f;
@@ -109,20 +109,20 @@ void main() {
     vec2 unjitterScreenPos = screenPos + uval_taaJitter * uval_mainImageSizeRcp;
 
     // Looks like this is fast enough without shared memory
-    float currViewZ = texelFetch(usam_gbufferSolidViewZ, texelPos, 0).r;
+    float currViewZ = texelFetch(usam_gbufferSolidViewZ, coords_renderTexelToViewTexel(texelPos), 0).r;
     ivec2 offsetNeg = max(ivec2(-1, -1) + texelPos, ivec2(0)) - texelPos;
     ivec2 offsetPos = min(ivec2(1, 1) + texelPos, uval_mainImageSizeI - 1) - texelPos;
-    currViewZ = max(texelFetch(usam_gbufferSolidViewZ, texelPos + ivec2(offsetNeg.x, 0), 0).r, currViewZ);
-    currViewZ = max(texelFetch(usam_gbufferSolidViewZ, texelPos + ivec2(offsetPos.x, 0), 0).r, currViewZ);
-    currViewZ = max(texelFetch(usam_gbufferSolidViewZ, texelPos + ivec2(0, offsetNeg.y), 0).r, currViewZ);
-    currViewZ = max(texelFetch(usam_gbufferSolidViewZ, texelPos + ivec2(0, offsetPos.y), 0).r, currViewZ);
-    currViewZ = max(texelFetch(usam_gbufferSolidViewZ, texelPos + ivec2(offsetNeg.x, offsetNeg.y), 0).r, currViewZ);
-    currViewZ = max(texelFetch(usam_gbufferSolidViewZ, texelPos + ivec2(offsetPos.x, offsetNeg.y), 0).r, currViewZ);
-    currViewZ = max(texelFetch(usam_gbufferSolidViewZ, texelPos + ivec2(offsetNeg.x, offsetPos.y), 0).r, currViewZ);
-    currViewZ = max(texelFetch(usam_gbufferSolidViewZ, texelPos + ivec2(offsetPos.x, offsetPos.y), 0).r, currViewZ);
+    currViewZ = max(texelFetch(usam_gbufferSolidViewZ, coords_renderTexelDeltaToViewTexel(texelPos, ivec2(offsetNeg.x, 0)), 0).r, currViewZ);
+    currViewZ = max(texelFetch(usam_gbufferSolidViewZ, coords_renderTexelDeltaToViewTexel(texelPos, ivec2(offsetPos.x, 0)), 0).r, currViewZ);
+    currViewZ = max(texelFetch(usam_gbufferSolidViewZ, coords_renderTexelDeltaToViewTexel(texelPos, ivec2(0, offsetNeg.y)), 0).r, currViewZ);
+    currViewZ = max(texelFetch(usam_gbufferSolidViewZ, coords_renderTexelDeltaToViewTexel(texelPos, ivec2(0, offsetPos.y)), 0).r, currViewZ);
+    currViewZ = max(texelFetch(usam_gbufferSolidViewZ, coords_renderTexelDeltaToViewTexel(texelPos, ivec2(offsetNeg.x, offsetNeg.y)), 0).r, currViewZ);
+    currViewZ = max(texelFetch(usam_gbufferSolidViewZ, coords_renderTexelDeltaToViewTexel(texelPos, ivec2(offsetPos.x, offsetNeg.y)), 0).r, currViewZ);
+    currViewZ = max(texelFetch(usam_gbufferSolidViewZ, coords_renderTexelDeltaToViewTexel(texelPos, ivec2(offsetNeg.x, offsetPos.y)), 0).r, currViewZ);
+    currViewZ = max(texelFetch(usam_gbufferSolidViewZ, coords_renderTexelDeltaToViewTexel(texelPos, ivec2(offsetPos.x, offsetPos.y)), 0).r, currViewZ);
 
     GBufferData gData = gbufferData_init();
-    gbufferData2_unpack(texelFetch(usam_gbufferSolidData2, texelPos, 0), gData);
+    gbufferData2_unpack(texelFetch(usam_gbufferSolidData2, coords_renderTexelToViewTexel(texelPos), 0), gData);
     vec3 currViewPos = coords_toViewCoord(screenPos, currViewZ, global_camProjInverse);
     vec4 curr2PrevViewPos = coord_viewCurrToPrev(vec4(currViewPos, 1.0), gData.isHand);
     vec4 curr2PrevClipPos = global_prevCamProj * curr2PrevViewPos;

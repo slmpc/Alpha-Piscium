@@ -21,7 +21,7 @@
 #include "/util/ThreadGroupTiling.glsl"
 
 layout(local_size_x = 16, local_size_y = 16) in;
-const vec2 workGroupsRender = vec2(1.0, 1.0);
+const vec2 workGroupsRender = vec2(SETTING_RENDER_SCALE, SETTING_RENDER_SCALE);
 
 layout(rgba16f) uniform restrict writeonly image2D uimg_rgba16f;
 layout(rgba8) uniform restrict writeonly image2D uimg_rgba8;
@@ -44,7 +44,7 @@ struct GeomData {
 
 GeomData _gi_readGeomData(ivec2 texelPos, vec2 screenPos) {
     GeomData geomData;
-    float viewZ = texelFetch(usam_gbufferSolidViewZ, texelPos, 0).r;
+    float viewZ = texelFetch(usam_gbufferSolidViewZ, coords_renderTexelToViewTexel(texelPos), 0).r;
     geomData.viewPos = coords_toViewCoord(screenPos, viewZ, global_camProjInverse);
     geomData.geomNormal = transient_geomViewNormal_fetch(texelPos).xyz * 2.0 - 1.0;
     geomData.normal = transient_viewNormal_fetch(texelPos).xyz * 2.0 - 1.0;
@@ -202,8 +202,8 @@ void main() {
             float16_t rcpSamples = float16_t(1.0 / float(GI_DENOISE_SAMPLES));
 
             GBufferData centerGData = gbufferData_init();
-            gbufferData1_unpack(texelFetch(usam_gbufferSolidData1, texelPos, 0), centerGData);
-            gbufferData2_unpack(texelFetch(usam_gbufferSolidData2, texelPos, 0), centerGData);
+            gbufferData1_unpack(texelFetch(usam_gbufferSolidData1, coords_renderTexelToViewTexel(texelPos), 0), centerGData);
+            gbufferData2_unpack(texelFetch(usam_gbufferSolidData2, coords_renderTexelToViewTexel(texelPos), 0), centerGData);
             Material material = material_decode(centerGData);
 
             // --- Diffuse loop: screen-space kernel with view-angle stretch ---

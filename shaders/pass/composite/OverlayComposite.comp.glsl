@@ -1,5 +1,7 @@
+#include "/base/Options.glsl"
+
 layout(local_size_x = 16, local_size_y = 16) in;
-const vec2 workGroupsRender = vec2(1.0, 1.0);
+const vec2 workGroupsRender = vec2(SETTING_RENDER_SCALE, SETTING_RENDER_SCALE);
 
 #include "/techniques/debug/DebugOutput.glsl"
 #include "/techniques/debug/DebugFinalOutput.glsl"
@@ -17,7 +19,7 @@ void main() {
         outputColor.rgb = mix(outputColor.rgb, basicColor.rgb, basicColor.a);
 
         #ifdef SETTING_DOF_SHOW_FOCUS_PLANE
-        float viewZ = texelFetch(usam_gbufferSolidViewZ, texelPos, 0).r;
+        float viewZ = texelFetch(usam_gbufferSolidViewZ, coords_renderTexelToViewTexel(texelPos), 0).r;
         float alpha = float(viewZ < -global_focusDistance);
         outputColor.rgb = mix(outputColor.rgb, vec3(1.0, 0.0, 1.0), alpha * 0.25);
         #endif

@@ -8,13 +8,15 @@
 */
 #extension GL_KHR_shader_subgroup_ballot : enable
 
+#include "/base/Options.glsl"
+
 #include "/techniques/gi/Reservoir.glsl"
 #include "/util/GBufferData.glsl"
 #include "/util/Rand.glsl"
 #include "/util/ThreadGroupTiling.glsl"
 
 layout(local_size_x = 16, local_size_y = 16) in;
-const vec2 workGroupsRender = vec2(1.0, 1.0);
+const vec2 workGroupsRender = vec2(SETTING_RENDER_SCALE, SETTING_RENDER_SCALE);
 
 layout(rgba32ui) uniform restrict uimage2D uimg_rgba32ui;
 layout(rgba16f) uniform writeonly image2D uimg_temp1;
@@ -50,7 +52,7 @@ void main() {
             }
             ReSTIRReservoir r = restir_reservoir_unpack(packedRes);
             vec2 screenPos = coords_texelToUV(loadPos, uval_mainImageSizeRcp);
-            float viewZ = texelFetch(usam_gbufferSolidViewZ, loadPos, 0).x;
+            float viewZ = texelFetch(usam_gbufferSolidViewZ, coords_renderTexelToViewTexel(loadPos), 0).x;
             vec3 viewPos = coords_toViewCoord(screenPos, viewZ, global_camProjInverse);
             hitViewPos = vec4(viewPos + r.Y.xyz * r.Y.w, 1.0);
         }

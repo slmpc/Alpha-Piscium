@@ -4,7 +4,7 @@
 #include "/util/GBufferData.glsl"
 
 layout(local_size_x = 16, local_size_y = 16) in;
-const vec2 workGroupsRender = vec2(1.0, 1.0);
+const vec2 workGroupsRender = vec2(SETTING_RENDER_SCALE, SETTING_RENDER_SCALE);
 
 layout(rgba16f) uniform writeonly restrict image2D uimg_temp1;
 layout(rgba8) uniform writeonly restrict image2D uimg_rgba8;
@@ -26,11 +26,11 @@ void loadSharedData(uint index) {
         srcXY = clamp(srcXY, ivec2(0), ivec2(uval_mainImageSize - 1));
 
         // Load viewZ
-        float viewZ = texelFetch(usam_gbufferSolidViewZ, srcXY, 0).r;
+        float viewZ = texelFetch(usam_gbufferSolidViewZ, coords_renderTexelToViewTexel(srcXY), 0).r;
 
         // Load geometry normal
         GBufferData gData = gbufferData_init();
-        gbufferData1_unpack_world(texelFetch(usam_gbufferSolidData1, srcXY, 0), gData);
+        gbufferData1_unpack_world(texelFetch(usam_gbufferSolidData1, coords_renderTexelToViewTexel(srcXY), 0), gData);
 
         uvec3 packedData = uvec3(0u);
         packedData.x = floatBitsToUint(viewZ);
@@ -114,4 +114,3 @@ void main() {
         transient_edgeMaskTemp_store(texelPos, vec4(weightSum));
     }
 }
-

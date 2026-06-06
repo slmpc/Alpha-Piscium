@@ -6,7 +6,7 @@
 #include "/util/Rand.glsl"
 
 layout(local_size_x = 16, local_size_y = 16) in;
-const vec2 workGroupsRender = vec2(1.0, 1.0);
+const vec2 workGroupsRender = vec2(SETTING_RENDER_SCALE, SETTING_RENDER_SCALE);
 
 layout(std430, binding = 5) readonly buffer RayData {
     uvec4 ssbo_rayData[];
@@ -41,7 +41,7 @@ void main() {
         uvec4 packedData = ssbo_rayData[binBaseIndex + actualRayIndex];
         SSTRay sstRay = sstray_unpack(packedData);
         ivec2 texelPos = sstRay.pRayOriginTexelPos;
-        float viewZ = texelFetch(usam_gbufferSolidViewZ, texelPos, 0).r;
+        float viewZ = texelFetch(usam_gbufferSolidViewZ, coords_renderTexelToViewTexel(texelPos), 0).r;
         sstray_recoverOrigin(sstRay, viewZ);
         sst_trace(sstRay, RAY_STEPS);
         handleRayResult(sstRay);

@@ -11,7 +11,7 @@
 #include "/util/Dither.glsl"
 
 layout(local_size_x = 16, local_size_y = 16) in;
-const vec2 workGroupsRender = vec2(1.0, 1.0);
+const vec2 workGroupsRender = vec2(SETTING_RENDER_SCALE, SETTING_RENDER_SCALE);
 
 layout(rgba16f) uniform writeonly image2D uimg_temp1;
 layout(rgba16f) uniform writeonly image2D uimg_temp2;
@@ -125,7 +125,7 @@ void main() {
         loadSharedDataMoments(workGroupOrigin, gl_LocalInvocationIndex + 256u);
 
         if (all(lessThan(texelPos, uval_mainImageSizeI))) {
-            float viewZ = texelFetch(usam_gbufferSolidViewZ, texelPos, 0).x;
+            float viewZ = texelFetch(usam_gbufferSolidViewZ, coords_renderTexelToViewTexel(texelPos), 0).x;
             #ifndef SETTING_DENOISER_SPATIAL
             storeHistorySurfaceData(texelPos, viewZ);
             #endif
@@ -148,7 +148,7 @@ void main() {
                 if (historyFixMix < 1.0) {
                     vec2 texelPos0 = vec2(texelPos) + 0.5;
                     vec3 geomNormal0 = normalize(transient_geomViewNormal_fetch(texelPos).xyz * 2.0 - 1.0);
-                    float viweZ0 = texelFetch(usam_gbufferSolidViewZ, texelPos, 0).x;
+                    float viweZ0 = texelFetch(usam_gbufferSolidViewZ, coords_renderTexelToViewTexel(texelPos), 0).x;
 
                     vec4 diffWeightedSum = vec4(0.0);
                     vec4 specWeightedSum = vec4(0.0);

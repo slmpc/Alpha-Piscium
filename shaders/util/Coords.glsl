@@ -183,6 +183,25 @@ vec2 coords_texelToUV(ivec2 texelPos, vec2 rcpTextureSize) {
     return saturate((vec2(texelPos) + 0.5) * rcpTextureSize);
 }
 
+vec2 coords_renderTexelToViewUV(ivec2 texelPos) {
+    return coords_texelToUV(texelPos, uval_mainImageSizeRcp);
+}
+
+ivec2 coords_renderTexelToViewTexel(ivec2 texelPos) {
+    vec2 uv = coords_renderTexelToViewUV(texelPos);
+    return clamp(ivec2(floor(uv * uval_viewImageSize)), ivec2(0), uval_viewImageSizeI - 1);
+}
+
+ivec2 coords_renderTexelDeltaToViewTexel(ivec2 texelPos, ivec2 delta) {
+    vec2 viewTexel = coords_renderTexelToViewUV(texelPos) * uval_viewImageSize;
+    return clamp(ivec2(floor(viewTexel)) + delta, ivec2(0), uval_viewImageSizeI - 1);
+}
+
+ivec2 coords_viewTexelToRenderTexel(ivec2 texelPos) {
+    vec2 uv = coords_texelToUV(texelPos, uval_viewImageSizeRcp);
+    return clamp(ivec2(floor(uv * uval_mainImageSize)), ivec2(0), uval_mainImageSizeI - 1);
+}
+
 ivec2 coords_clampTexelPos(ivec2 texelPos, ivec2 imageSizeV) {
     return clamp(texelPos, ivec2(0), imageSizeV);
 }

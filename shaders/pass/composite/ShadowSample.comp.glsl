@@ -23,7 +23,7 @@
 #include "/util/ThreadGroupTiling.glsl"
 
 layout(local_size_x = 16, local_size_y = 16) in;
-const vec2 workGroupsRender = vec2(1.0, 1.0);
+const vec2 workGroupsRender = vec2(SETTING_RENDER_SCALE, SETTING_RENDER_SCALE);
 
 #ifdef DISTANT_HORIZONS
 uniform sampler2D dhDepthTex0;
@@ -249,8 +249,8 @@ void main() {
 
         if (viewZ > -65536.0) {
             GBufferData gData = gbufferData_init();
-            gbufferData1_unpack(texelFetch(usam_gbufferSolidData1, texelPos, 0), gData);
-            gbufferData2_unpack(texelFetch(usam_gbufferSolidData2, texelPos, 0), gData);
+            gbufferData1_unpack(texelFetch(usam_gbufferSolidData1, coords_renderTexelToViewTexel(texelPos), 0), gData);
+            gbufferData2_unpack(texelFetch(usam_gbufferSolidData2, coords_renderTexelToViewTexel(texelPos), 0), gData);
             #ifdef SETTING_RTWSM_B
             rtwsm_backward(texelPos, viewZ, gData);
             #endif

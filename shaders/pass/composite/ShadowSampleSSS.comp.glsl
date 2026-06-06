@@ -89,7 +89,7 @@ float GetScreenDepth(ivec2 texel) {
     if (any(lessThan(texel, ivec2(0))) || any(greaterThanEqual(texel, uval_mainImageSizeI))) {
         return 0.0;
     }
-    float viewZ = texelFetch(usam_gbufferSolidViewZ, texel, 0).r;
+    float viewZ = texelFetch(usam_gbufferSolidViewZ, coords_renderTexelToViewTexel(texel), 0).r;
     if (viewZ <= -65536.0) return 0.0; // Far
 
     return coords_viewZToReversedZ(viewZ, nearPlane);
@@ -221,15 +221,16 @@ void WriteScreenSpaceShadow(DispatchParameters params, ivec3 groupID, uint laneI
 
     // Check ViewZ valid
     ivec2 writeTexel = ivec2(write_xy);
-    float viewZ = texelFetch(usam_gbufferSolidViewZ, writeTexel, 0).r;
+    ivec2 writeViewTexel = coords_renderTexelToViewTexel(writeTexel);
+    float viewZ = texelFetch(usam_gbufferSolidViewZ, writeViewTexel, 0).r;
     if (viewZ <= -65536.0) {
         imageStore(uimg_rgba8, writeTexel, vec4(1.0, 0.0, 1.0, 0.0));
         return;
     }
 
     GBufferData gData = gbufferData_init();
-    gbufferData1_unpack(texelFetch(usam_gbufferSolidData1, writeTexel, 0), gData);
-    gbufferData2_unpack(texelFetch(usam_gbufferSolidData2, writeTexel, 0), gData);
+    gbufferData1_unpack(texelFetch(usam_gbufferSolidData1, writeViewTexel, 0), gData);
+    gbufferData2_unpack(texelFetch(usam_gbufferSolidData2, writeViewTexel, 0), gData);
     Material material = material_decode(gData);
     float sssFactor = material.sss;
     float start_depth = sampling_depth[0];

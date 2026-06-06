@@ -15,6 +15,8 @@
 */
 #extension GL_KHR_shader_subgroup_ballot : enable
 
+#include "/base/Options.glsl"
+
 #include "/techniques/gi/Reservoir.glsl"
 #include "/techniques/gi/InitialSample.glsl"
 #include "/util/GBufferData.glsl"
@@ -27,7 +29,7 @@
 #include "/techniques/gi/PairwiseMIS.glsl"
 
 layout(local_size_x = 16, local_size_y = 16) in;
-const vec2 workGroupsRender = vec2(1.0, 1.0);
+const vec2 workGroupsRender = vec2(SETTING_RENDER_SCALE, SETTING_RENDER_SCALE);
 
 layout(rgba16f) uniform writeonly image2D uimg_temp1;
 layout(rgba16f) uniform writeonly image2D uimg_temp3;
@@ -151,8 +153,8 @@ void main() {
             vec3 V = normalize(-viewPos);
 
             GBufferData gData = gbufferData_init();
-            gbufferData1_unpack(texelFetch(usam_gbufferSolidData1, texelPos, 0), gData);
-            gbufferData2_unpack(texelFetch(usam_gbufferSolidData2, texelPos, 0), gData);
+            gbufferData1_unpack(texelFetch(usam_gbufferSolidData1, coords_renderTexelToViewTexel(texelPos), 0), gData);
+            gbufferData2_unpack(texelFetch(usam_gbufferSolidData2, coords_renderTexelToViewTexel(texelPos), 0), gData);
             Material material = material_decode(gData);
 
             float hitDistance = transient_gi_initialSampleHitDistance_fetch(texelPos).x;

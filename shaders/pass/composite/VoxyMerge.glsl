@@ -36,13 +36,13 @@ void main() {
     uint localIndex = gl_LocalInvocationIndex;
     for (uint i = localIndex; i < 324u; i += 256u) {
         ivec2 localPos = ivec2(i % 18u, i / 18u);
-        ivec2 loadPos = clamp(groupBase + localPos, ivec2(0), uval_mainImageSizeI - 1);
+        ivec2 loadPos = clamp(groupBase + localPos, ivec2(0), uval_viewImageSizeI - 1);
         shared_voxyData[localPos.x][localPos.y] = texelFetch(usam_gbufferVoxySolidData, loadPos, 0);
     }
 
     barrier();
 
-    if (any(greaterThanEqual(texelPos, uval_mainImageSizeI))) return;
+    if (any(greaterThanEqual(texelPos, uval_viewImageSizeI))) return;
 
     ivec2 localPos = ivec2(gl_LocalInvocationID.xy) + 1;
     uvec4 voxyCenter = shared_voxyData[localPos.x][localPos.y];
@@ -69,7 +69,7 @@ void main() {
             uint matID = (rawProp >> 16) & 0xFFFFu;
             vec2 lmCoord = vec2(rawProp & 0xFFu, (rawProp >> 8) & 0xFFu) / 255.0;
 
-            vec2 screenPos = (vec2(texelPos) + 0.5) * uval_mainImageSizeRcp;
+            vec2 screenPos = (vec2(texelPos) + 0.5) * uval_viewImageSizeRcp;
             vec3 viewPosCenter = coords_toViewCoord(screenPos, voxyZ, global_camProjInverse);
 
             vec2 dUVdx = vec2(0.0);
@@ -87,7 +87,7 @@ void main() {
                         float neighborZ = uintBitsToFloat(voxyNeighbor.w);
                         if (abs(neighborZ - voxyZ) < 0.2) {
                             vec2 uvNeighbor = unpackUnorm2x16(voxyNeighbor.x);
-                            vec2 neighborScreenPos = (vec2(texelPos + ivec2(dx, 0)) + 0.5) * uval_mainImageSizeRcp;
+                            vec2 neighborScreenPos = (vec2(texelPos + ivec2(dx, 0)) + 0.5) * uval_viewImageSizeRcp;
                             vec3 viewPosNeighbor = coords_toViewCoord(neighborScreenPos, neighborZ, global_camProjInverse);
 
                             dUVdx += (uvNeighbor - uvCenter) * float(dx);
@@ -106,7 +106,7 @@ void main() {
                         float neighborZ = uintBitsToFloat(voxyNeighbor.w);
                         if (abs(neighborZ - voxyZ) < 0.2) {
                             vec2 uvNeighbor = unpackUnorm2x16(voxyNeighbor.x);
-                            vec2 neighborScreenPos = (vec2(texelPos + ivec2(0, dy)) + 0.5) * uval_mainImageSizeRcp;
+                            vec2 neighborScreenPos = (vec2(texelPos + ivec2(0, dy)) + 0.5) * uval_viewImageSizeRcp;
                             vec3 viewPosNeighbor = coords_toViewCoord(neighborScreenPos, neighborZ, global_camProjInverse);
 
                             dUVdy += (uvNeighbor - uvCenter) * float(dy);
@@ -191,7 +191,7 @@ void main() {
             vec3 geomViewBitangent = normalize(cross(geomViewTangent, geomViewNormal));
             geomViewTangent = normalize(cross(geomViewNormal, geomViewBitangent));
 
-            vec2 screenPos = (vec2(texelPos) + 0.5) * uval_mainImageSizeRcp;
+            vec2 screenPos = (vec2(texelPos) + 0.5) * uval_viewImageSizeRcp;
             vec3 viewPos = coords_toViewCoord(screenPos, voxyZ, global_camProjInverse);
             float zOffset = 0.0;
             vec3 finalNormal = geomViewNormal;
@@ -270,10 +270,11 @@ void main() {
             #endif
 
             float offsetViewZ = voxyZ - clamp(zOffset, -16.0, 16.0);
-            ivec2 nearDepthTexelPos = isWater ? csr32f_tile1_texelToTexel(texelPos) : csr32f_tile3_texelToTexel(texelPos);
-            ivec2 farDepthTexelPos = isWater ? csr32f_tile2_texelToTexel(texelPos) : csr32f_tile4_texelToTexel(texelPos);
-            float waterNearViewZ = -texelFetch(usam_csr32f, csr32f_tile1_texelToTexel(texelPos), 0).r;
-            float translucentNearViewZ = -texelFetch(usam_csr32f, csr32f_tile3_texelToTexel(texelPos), 0).r;
+            ivec2 renderTexelPos = coords_viewTexelToRenderTexel(texelPos);
+            ivec2 nearDepthTexelPos = isWater ? csr32f_tile1_texelToTexel(renderTexelPos) : csr32f_tile3_texelToTexel(renderTexelPos);
+            ivec2 farDepthTexelPos = isWater ? csr32f_tile2_texelToTexel(renderTexelPos) : csr32f_tile4_texelToTexel(renderTexelPos);
+            float waterNearViewZ = -texelFetch(usam_csr32f, csr32f_tile1_texelToTexel(renderTexelPos), 0).r;
+            float translucentNearViewZ = -texelFetch(usam_csr32f, csr32f_tile3_texelToTexel(renderTexelPos), 0).r;
             float frontBefore = max(waterNearViewZ, translucentNearViewZ);
 
             imageAtomicMin(uimg_csr32f, nearDepthTexelPos, floatBitsToInt(-offsetViewZ));

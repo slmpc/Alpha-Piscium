@@ -1,4 +1,5 @@
 #include "Common.glsl"
+#include "/util/Coords.glsl"
 #include "/util/BitPacking.glsl"
 #include "/util/Colors.glsl"
 #include "/util/Colors2.glsl"
@@ -129,12 +130,13 @@ void debugOutput(ivec2 texelPos, inout vec4 outputColor) {
 
 
         GBufferData gData = gbufferData_init();
-        gbufferData1_unpack(texelFetch(usam_gbufferSolidData1, scaledTexelPos, 0), gData);
-        gbufferData2_unpack(texelFetch(usam_gbufferSolidData2, scaledTexelPos, 0), gData);
+        ivec2 scaledViewTexelPos = coords_renderTexelToViewTexel(scaledTexelPos);
+        gbufferData1_unpack(texelFetch(usam_gbufferSolidData1, scaledViewTexelPos, 0), gData);
+        gbufferData2_unpack(texelFetch(usam_gbufferSolidData2, scaledViewTexelPos, 0), gData);
         Material material = material_decode(gData);
 
         #if SETTING_DEBUG_GBUFFER_DATA == 1
-        outputColor.rgb = displayViewZ(texelFetch(usam_gbufferSolidViewZ, scaledTexelPos, 0).r);
+        outputColor.rgb = displayViewZ(texelFetch(usam_gbufferSolidViewZ, scaledViewTexelPos, 0).r);
         #elif SETTING_DEBUG_GBUFFER_DATA == 2
         outputColor.rgb = gammaCorrect(material.albedo);
         #elif SETTING_DEBUG_GBUFFER_DATA == 3 || SETTING_DEBUG_GBUFFER_DATA == 4

@@ -12,7 +12,7 @@
 #include "/util/Colors2.glsl"
 
 layout(local_size_x = 16, local_size_y = 16) in;
-const vec2 workGroupsRender = vec2(1.0, 1.0);
+const vec2 workGroupsRender = vec2(SETTING_RENDER_SCALE, SETTING_RENDER_SCALE);
 
 layout(rgba16f) uniform restrict image2D uimg_main;
 layout(rgba16f) uniform writeonly image2D uimg_temp2;
@@ -22,7 +22,7 @@ layout(rgba16f) uniform writeonly image2D uimg_rgba16f;
 void main() {
     if (all(lessThan(texelPos, uval_mainImageSizeI))) {
         vec4 outputColor = texelFetch(usam_main, texelPos, 0);
-        float solidViewZ = texelFetch(usam_gbufferSolidViewZ, texelPos, 0).r;
+        float solidViewZ = texelFetch(usam_gbufferSolidViewZ, coords_renderTexelToViewTexel(texelPos), 0).r;
         vec4 exposureWeights = vec4(1.0);
 
         const float BASE_VIEWZ_WEIGHT = exp2(SETTING_EXPOSURE_DISTANCE_WEIGHTING);
@@ -33,8 +33,8 @@ void main() {
             vec3 solidViewPos = coords_toViewCoord(screenPos, solidViewZ, global_camProjInverse);
             vec3 V = normalize(-solidViewPos);
             GBufferData gData = gbufferData_init();
-            gbufferData1_unpack(texelFetch(usam_gbufferSolidData1, texelPos, 0), gData);
-            gbufferData2_unpack(texelFetch(usam_gbufferSolidData2, texelPos, 0), gData);
+            gbufferData1_unpack(texelFetch(usam_gbufferSolidData1, coords_renderTexelToViewTexel(texelPos), 0), gData);
+            gbufferData2_unpack(texelFetch(usam_gbufferSolidData2, coords_renderTexelToViewTexel(texelPos), 0), gData);
             Material material = material_decode(gData);
 
             float emissive = gData.pbrSpecular.a;
@@ -86,9 +86,9 @@ void main() {
 
         if (startViewZ > -65536.0 && startViewZ > solidViewZ) {
             GBufferData gData = gbufferData_init();
-            gbufferData1_unpack(texelFetch(usam_gbufferTranslucentData1, texelPos, 0), gData);
-            gbufferData2_unpack(texelFetch(usam_gbufferTranslucentData2, texelPos, 0), gData);
-            vec3 translucentTransmittance = texelFetch(usam_translucentColor, texelPos, 0).rgb;
+            gbufferData1_unpack(texelFetch(usam_gbufferTranslucentData1, coords_renderTexelToViewTexel(texelPos), 0), gData);
+            gbufferData2_unpack(texelFetch(usam_gbufferTranslucentData2, coords_renderTexelToViewTexel(texelPos), 0), gData);
+            vec3 translucentTransmittance = texelFetch(usam_translucentColor, coords_renderTexelToViewTexel(texelPos), 0).rgb;
             outputColor.rgb *= mix(translucentTransmittance / gData.albedo, vec3(0.0), lessThan(gData.albedo, vec3(0.001)));
         }
 

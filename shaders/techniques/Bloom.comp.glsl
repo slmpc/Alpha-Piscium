@@ -15,27 +15,27 @@
 
 #ifndef BLOOM_NON_STANDALONE
 #if BLOOM_SCALE_DIV == 0
-const vec2 workGroupsRender = vec2(1.0, 1.0);
+const vec2 workGroupsRender = vec2(SETTING_RENDER_SCALE, SETTING_RENDER_SCALE);
 #elif BLOOM_SCALE_DIV == 1
-const vec2 workGroupsRender = vec2(0.5, 0.5);
+const vec2 workGroupsRender = vec2(0.5 * SETTING_RENDER_SCALE, 0.5 * SETTING_RENDER_SCALE);
 #elif BLOOM_SCALE_DIV == 2
-const vec2 workGroupsRender = vec2(0.25, 0.25);
+const vec2 workGroupsRender = vec2(0.25 * SETTING_RENDER_SCALE, 0.25 * SETTING_RENDER_SCALE);
 #elif BLOOM_SCALE_DIV == 3
-const vec2 workGroupsRender = vec2(0.125, 0.125);
+const vec2 workGroupsRender = vec2(0.125 * SETTING_RENDER_SCALE, 0.125 * SETTING_RENDER_SCALE);
 #elif BLOOM_SCALE_DIV == 4
-const vec2 workGroupsRender = vec2(0.0625, 0.0625);
+const vec2 workGroupsRender = vec2(0.0625 * SETTING_RENDER_SCALE, 0.0625 * SETTING_RENDER_SCALE);
 #elif BLOOM_SCALE_DIV == 5
-const vec2 workGroupsRender = vec2(0.03125, 0.03125);
+const vec2 workGroupsRender = vec2(0.03125 * SETTING_RENDER_SCALE, 0.03125 * SETTING_RENDER_SCALE);
 #elif BLOOM_SCALE_DIV == 6
-const vec2 workGroupsRender = vec2(0.015625, 0.015625);
+const vec2 workGroupsRender = vec2(0.015625 * SETTING_RENDER_SCALE, 0.015625 * SETTING_RENDER_SCALE);
 #elif BLOOM_SCALE_DIV == 7
-const vec2 workGroupsRender = vec2(0.0078125, 0.0078125);
+const vec2 workGroupsRender = vec2(0.0078125 * SETTING_RENDER_SCALE, 0.0078125 * SETTING_RENDER_SCALE);
 #elif BLOOM_SCALE_DIV == 8
-const vec2 workGroupsRender = vec2(0.00390625, 0.00390625);
+const vec2 workGroupsRender = vec2(0.00390625 * SETTING_RENDER_SCALE, 0.00390625 * SETTING_RENDER_SCALE);
 #elif BLOOM_SCALE_DIV == 9
-const vec2 workGroupsRender = vec2(0.001953125, 0.001953125);
+const vec2 workGroupsRender = vec2(0.001953125 * SETTING_RENDER_SCALE, 0.001953125 * SETTING_RENDER_SCALE);
 #elif BLOOM_SCALE_DIV == 10
-const vec2 workGroupsRender = vec2(0.0009765625, 0.0009765625);
+const vec2 workGroupsRender = vec2(0.0009765625 * SETTING_RENDER_SCALE, 0.0009765625 * SETTING_RENDER_SCALE);
 #endif
 layout(local_size_x = 16, local_size_y = 16) in;
 #endif

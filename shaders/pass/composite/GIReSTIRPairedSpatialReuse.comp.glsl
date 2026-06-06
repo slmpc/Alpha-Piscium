@@ -144,7 +144,7 @@ void main() {
     if (bool(validA & validB & uint(texelA != texelB))) {
         bool flagA = bool(gl_GlobalInvocationID.x & 1u);
         ivec2 texelMe = flagA ? texelA : texelB;
-        float viewZMe = texelFetch(usam_gbufferSolidViewZ, texelMe, 0).x;
+        float viewZMe = texelFetch(usam_gbufferSolidViewZ, coords_renderTexelToViewTexel(texelMe), 0).x;
         vec2 screenPosMe = coords_texelToUV(texelMe, uval_mainImageSizeRcp);
         vec3 viewPosMe = coords_toViewCoord(screenPosMe, viewZMe, global_camProjInverse);
         uint checkMe = uint(viewZMe > -65536.0);

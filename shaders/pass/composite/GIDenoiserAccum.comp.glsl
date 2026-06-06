@@ -18,7 +18,7 @@
 #include "/util/ThreadGroupTiling.glsl"
 
 layout(local_size_x = 16, local_size_y = 16) in;
-const vec2 workGroupsRender = vec2(1.0, 1.0);
+const vec2 workGroupsRender = vec2(SETTING_RENDER_SCALE, SETTING_RENDER_SCALE);
 
 layout(rgba16f) uniform writeonly image2D uimg_temp1;
 layout(rgba16f) uniform writeonly image2D uimg_temp2;
@@ -96,7 +96,7 @@ void main() {
         loadSharedHistoryLengths(workGroupOrigin, gl_LocalInvocationIndex + 256u);
 
         if (all(lessThan(texelPos, uval_mainImageSizeI))) {
-            float viewZ = texelFetch(usam_gbufferSolidViewZ, texelPos, 0).x;
+            float viewZ = texelFetch(usam_gbufferSolidViewZ, coords_renderTexelToViewTexel(texelPos), 0).x;
             if (viewZ > -65536.0) {
                 vec4 newDiffuse = transient_ssgiDiffOut_fetch(texelPos);
                 vec4 newSpecular = transient_ssgiSpecOut_fetch(texelPos);
@@ -124,8 +124,8 @@ void main() {
                     vec2 newWeights = vec2(1.0);
 
                     GBufferData gData = gbufferData_init();
-                    gbufferData1_unpack(texelFetch(usam_gbufferSolidData1, texelPos, 0), gData);
-                    gbufferData2_unpack(texelFetch(usam_gbufferSolidData2, texelPos, 0), gData);
+                    gbufferData1_unpack(texelFetch(usam_gbufferSolidData1, coords_renderTexelToViewTexel(texelPos), 0), gData);
+                    gbufferData2_unpack(texelFetch(usam_gbufferSolidData2, coords_renderTexelToViewTexel(texelPos), 0), gData);
                     Material material = material_decode(gData);
                     transient_specularPBRData_store(texelPos, vec4(sqrt(material.roughness), material.dielectric, 0.0, 0.0));
 

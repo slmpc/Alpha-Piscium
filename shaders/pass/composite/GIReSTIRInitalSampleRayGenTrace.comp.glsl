@@ -27,7 +27,7 @@
 #include "/util/ThreadGroupTiling.glsl"
 
 layout(local_size_x = 16, local_size_y = 16) in;
-const vec2 workGroupsRender = vec2(1.0, 1.0);
+const vec2 workGroupsRender = vec2(SETTING_RENDER_SCALE, SETTING_RENDER_SCALE);
 
 layout(std430, binding = 5) buffer RayData {
     uvec4 ssbo_rayData[];
@@ -72,8 +72,8 @@ void main() {
             vec3 viewPos = coords_toViewCoord(screenPos, viewZ, global_camProjInverse);
 
             GBufferData gData = gbufferData_init();
-            gbufferData1_unpack(texelFetch(usam_gbufferSolidData1, texelPos, 0), gData);
-            gbufferData2_unpack(texelFetch(usam_gbufferSolidData2, texelPos, 0), gData);
+            gbufferData1_unpack(texelFetch(usam_gbufferSolidData1, coords_renderTexelToViewTexel(texelPos), 0), gData);
+            gbufferData2_unpack(texelFetch(usam_gbufferSolidData2, coords_renderTexelToViewTexel(texelPos), 0), gData);
             Material material = material_decode(gData);
             transient_restir_resampleMaterial_store(texelPos, resampleMaterial_pack(resampleMaterial_fromMaterial(material)));
             vec4 albedoAndEmissive = vec4(gData.albedo, gData.pbrSpecular.a);

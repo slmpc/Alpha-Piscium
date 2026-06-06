@@ -550,6 +550,11 @@ class Scope : OptionFactory() {
             }
 
             _options.appendLine("// $NOTICE")
+            _options.appendLine("#ifndef INCLUDE_base_Options_glsl")
+            _options.appendLine("#define INCLUDE_base_Options_glsl a")
+            _textOptions.appendLine("// $NOTICE")
+            _textOptions.appendLine("#ifndef INCLUDE_base_TextOptions_glsl")
+            _textOptions.appendLine("#define INCLUDE_base_TextOptions_glsl a")
             _shadersProperties.appendLine("# $NOTICE")
             _shadersProperties.appendLine(baseShadersProperties.readText())
             _shadersProperties.appendLine()
@@ -591,8 +596,8 @@ class Scope : OptionFactory() {
             }
             val langDir = File(shaderRoot, "lang")
             langDir.mkdirs()
-            optionGlslFile.writeText(_options.toString())
-            textOptionGlslFile.writeText(_textOptions.toString())
+            optionGlslFile.writeText(_options.appendLine("#endif").toString())
+            textOptionGlslFile.writeText(_textOptions.appendLine("#endif").toString())
             _lang.forEach { (language, content) ->
                 File(langDir, "${language}.lang").writeText(content.toString())
             }

@@ -10,7 +10,7 @@
 #include "/techniques/HiZ.glsl"
 
 layout(local_size_x = 8, local_size_y = 8) in;
-const vec2 workGroupsRender = vec2(RENDER_MULTIPLIER, RENDER_MULTIPLIER);
+const vec2 workGroupsRender = vec2(RENDER_MULTIPLIER * SETTING_RENDER_SCALE, RENDER_MULTIPLIER * SETTING_RENDER_SCALE);
 
 shared bool shared_worldGroupCheck;
 

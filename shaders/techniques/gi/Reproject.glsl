@@ -127,8 +127,8 @@ void gi_reproject(ivec2 texelPos, float currViewZ) {
 
     screenPos -= uval_taaJitter * uval_mainImageSizeRcp;
     GBufferData gData = gbufferData_init();
-    gbufferData1_unpack(texelFetch(usam_gbufferSolidData1, texelPos, 0), gData);
-    gbufferData2_unpack(texelFetch(usam_gbufferSolidData2, texelPos, 0), gData);
+    gbufferData1_unpack(texelFetch(usam_gbufferSolidData1, coords_renderTexelToViewTexel(texelPos), 0), gData);
+    gbufferData2_unpack(texelFetch(usam_gbufferSolidData2, coords_renderTexelToViewTexel(texelPos), 0), gData);
 
     vec3 currViewPos = coords_toViewCoord(screenPos, currViewZ, global_camProjInverse);
     vec4 curr2PrevViewPos = coord_viewCurrToPrev(vec4(currViewPos, 1.0), gData.isHand);

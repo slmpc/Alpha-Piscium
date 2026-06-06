@@ -21,6 +21,11 @@ uniform float uval_dayNightTransition;
 
 uniform vec3 uval_cuDetailWind;
 
+uniform vec2 uval_viewImageSize;
+uniform vec2 uval_viewImageSizeRcp;
+uniform int uval_viewImageSizeIX;
+uniform int uval_viewImageSizeIY;
+
 uniform vec2 uval_mainImageSize;
 uniform vec2 uval_mainImageSizeRcp;
 uniform int uval_mainImageSizeIX;
@@ -37,4 +42,7 @@ uniform int uval_restirSpatialTileOffsety;
 ivec2 uval_restirSpatialTileOffset = ivec2(uval_restirSpatialTileOffsetX, uval_restirSpatialTileOffsety);
 #endif
 
+ivec2 uval_viewImageSizeI = ivec2(uval_viewImageSizeIX, uval_viewImageSizeIY);
 ivec2 uval_mainImageSizeI = ivec2(uval_mainImageSizeIX, uval_mainImageSizeIY);
+
+const vec2 RENDER_SCALE_WORKGROUPS = vec2(SETTING_RENDER_SCALE, SETTING_RENDER_SCALE);

@@ -276,7 +276,7 @@ void main() {
     materialID = bitfieldExtract(frag_materialID, 0, 16);
     isWater = materialID == MATERIAL_ID_WATER;
 
-    vec2 screenPos = gl_FragCoord.xy * uval_mainImageSizeRcp;
+    vec2 screenPos = gl_FragCoord.xy * uval_viewImageSizeRcp;
     viewPos = coords_toViewCoord(screenPos, frag_viewZ, global_camProjInverse);
 
     float solidViewZ = texelFetch(usam_gbufferSolidViewZ, texelPos, 0).r;
@@ -297,8 +297,9 @@ void main() {
     lighting_gData.albedo = transmittanceV.rgb;
     rt_translucentColor = transmittanceV;
 
-    ivec2 farDepthTexelPos = texelPos;
-    ivec2 nearDepthTexelPos = texelPos;
+    ivec2 translucentRenderTexelPos = coords_viewTexelToRenderTexel(texelPos);
+    ivec2 farDepthTexelPos = translucentRenderTexelPos;
+    ivec2 nearDepthTexelPos = translucentRenderTexelPos;
     if (isWater) {
         nearDepthTexelPos = csr32f_tile1_texelToTexel(nearDepthTexelPos);
         farDepthTexelPos = csr32f_tile2_texelToTexel(farDepthTexelPos);

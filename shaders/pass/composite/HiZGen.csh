@@ -7,7 +7,7 @@
 #include "/techniques/ffx/spd/SPD.comp.glsl"
 
 layout(rg32f) uniform coherent image2D uimg_hiz;
-const vec2 workGroupsRender = vec2(0.25 * SETTING_RENDER_SCALE, 0.25 * SETTING_RENDER_SCALE);
+const vec2 workGroupsRender = vec2(0.25 * RENDER_SCALE_FACTOR, 0.25 * RENDER_SCALE_FACTOR);
 
 vec4 spd_reduce4(vec4 v0, vec4 v1, vec4 v2, vec4 v3) {
     vec4 result = vec4(0.0);

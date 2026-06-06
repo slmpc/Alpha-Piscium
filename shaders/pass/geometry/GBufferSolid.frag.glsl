@@ -4,6 +4,7 @@
 #include "/util/Math.glsl"
 #include "/util/Rand.glsl"
 #include "/util/GBufferData.glsl"
+#include "/util/RenderScale.glsl"
 
 uniform sampler2D gtexture;
 uniform sampler2D normals;
@@ -180,9 +181,14 @@ void processData1() {
 }
 
 void main() {
+    if (renderScale_isOutsideMainViewport(gl_FragCoord.xy)) {
+        discard;
+        return;
+    }
+
     #ifdef DISTANT_HORIZONS
     #ifndef GBUFFER_PASS_DH
-    vec2 screenPos = gl_FragCoord.xy * uval_viewImageSizeRcp;
+    vec2 screenPos = gl_FragCoord.xy * uval_mainImageSizeRcp;
     vec3 viewPos = coords_toViewCoord(screenPos, frag_viewZ, global_camProjInverse);
     float edgeFactor = linearStep(min(far * 0.75, far - 24.0), far, length(viewPos));
     if (ditherNoise < edgeFactor) {

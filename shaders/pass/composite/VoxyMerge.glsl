@@ -36,13 +36,13 @@ void main() {
     uint localIndex = gl_LocalInvocationIndex;
     for (uint i = localIndex; i < 324u; i += 256u) {
         ivec2 localPos = ivec2(i % 18u, i / 18u);
-        ivec2 loadPos = clamp(groupBase + localPos, ivec2(0), uval_viewImageSizeI - 1);
+        ivec2 loadPos = clamp(groupBase + localPos, ivec2(0), uval_mainImageSizeI - 1);
         shared_voxyData[localPos.x][localPos.y] = texelFetch(usam_gbufferVoxySolidData, loadPos, 0);
     }
 
     barrier();
 
-    if (any(greaterThanEqual(texelPos, uval_viewImageSizeI))) return;
+    if (any(greaterThanEqual(texelPos, uval_mainImageSizeI))) return;
 
     ivec2 localPos = ivec2(gl_LocalInvocationID.xy) + 1;
     uvec4 voxyCenter = shared_voxyData[localPos.x][localPos.y];
@@ -69,7 +69,7 @@ void main() {
             uint matID = (rawProp >> 16) & 0xFFFFu;
             vec2 lmCoord = vec2(rawProp & 0xFFu, (rawProp >> 8) & 0xFFu) / 255.0;
 
-            vec2 screenPos = (vec2(texelPos) + 0.5) * uval_viewImageSizeRcp;
+            vec2 screenPos = (vec2(texelPos) + 0.5) * uval_mainImageSizeRcp;
             vec3 viewPosCenter = coords_toViewCoord(screenPos, voxyZ, global_camProjInverse);
 
             vec2 dUVdx = vec2(0.0);
@@ -87,7 +87,7 @@ void main() {
                         float neighborZ = uintBitsToFloat(voxyNeighbor.w);
                         if (abs(neighborZ - voxyZ) < 0.2) {
                             vec2 uvNeighbor = unpackUnorm2x16(voxyNeighbor.x);
-                            vec2 neighborScreenPos = (vec2(texelPos + ivec2(dx, 0)) + 0.5) * uval_viewImageSizeRcp;
+                            vec2 neighborScreenPos = (vec2(texelPos + ivec2(dx, 0)) + 0.5) * uval_mainImageSizeRcp;
                             vec3 viewPosNeighbor = coords_toViewCoord(neighborScreenPos, neighborZ, global_camProjInverse);
 
                             dUVdx += (uvNeighbor - uvCenter) * float(dx);
@@ -106,7 +106,7 @@ void main() {
                         float neighborZ = uintBitsToFloat(voxyNeighbor.w);
                         if (abs(neighborZ - voxyZ) < 0.2) {
                             vec2 uvNeighbor = unpackUnorm2x16(voxyNeighbor.x);
-                            vec2 neighborScreenPos = (vec2(texelPos + ivec2(0, dy)) + 0.5) * uval_viewImageSizeRcp;
+                            vec2 neighborScreenPos = (vec2(texelPos + ivec2(0, dy)) + 0.5) * uval_mainImageSizeRcp;
                             vec3 viewPosNeighbor = coords_toViewCoord(neighborScreenPos, neighborZ, global_camProjInverse);
 
                             dUVdy += (uvNeighbor - uvCenter) * float(dy);
@@ -191,7 +191,7 @@ void main() {
             vec3 geomViewBitangent = normalize(cross(geomViewTangent, geomViewNormal));
             geomViewTangent = normalize(cross(geomViewNormal, geomViewBitangent));
 
-            vec2 screenPos = (vec2(texelPos) + 0.5) * uval_viewImageSizeRcp;
+            vec2 screenPos = (vec2(texelPos) + 0.5) * uval_mainImageSizeRcp;
             vec3 viewPos = coords_toViewCoord(screenPos, voxyZ, global_camProjInverse);
             float zOffset = 0.0;
             vec3 finalNormal = geomViewNormal;

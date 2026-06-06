@@ -2,6 +2,7 @@
 #include "/util/Math.glsl"
 #include "/util/NZPacking.glsl"
 #include "/util/MaterialIDConst.glsl"
+#include "/util/RenderScale.glsl"
 
 #ifndef GBUFFER_PASS_DH
 in vec2 mc_Entity;
@@ -25,6 +26,7 @@ out vec3 frag_offsetToCenter;
 
 void main() {
     gl_Position = global_taaJitterMat * ftransform();
+    renderScale_applyGBufferScale(gl_Position);
 
     vec3 viewNormal = gl_NormalMatrix * normalize(gl_Normal.xyz);
     vec3 viewTangent = gl_NormalMatrix * normalize(at_tangent.xyz);

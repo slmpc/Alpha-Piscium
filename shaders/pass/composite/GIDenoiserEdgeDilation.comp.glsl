@@ -2,7 +2,7 @@
 #include "/util/Math.glsl"
 
 layout(local_size_x = 16, local_size_y = 16) in;
-const vec2 workGroupsRender = vec2(SETTING_RENDER_SCALE, SETTING_RENDER_SCALE);
+const vec2 workGroupsRender = vec2(RENDER_SCALE_FACTOR, RENDER_SCALE_FACTOR);
 
 layout(rgba8) uniform writeonly restrict image2D uimg_rgba8;
 

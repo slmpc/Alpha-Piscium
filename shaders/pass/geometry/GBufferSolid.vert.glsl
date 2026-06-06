@@ -1,6 +1,7 @@
 #include "/util/Math.glsl"
 #include "/util/Coords.glsl"
 #include "/util/NZPacking.glsl"
+#include "/util/RenderScale.glsl"
 
 #ifdef GBUFFER_PASS_MATERIAL_ID
 in vec2 mc_Entity;
@@ -24,6 +25,7 @@ out float frag_emissiveOverride;
 
 void main() {
     gl_Position = global_taaJitterMat * ftransform();
+    renderScale_applyGBufferScale(gl_Position);
 
     vec3 viewNormal = gl_NormalMatrix * normalize(gl_Normal.xyz);
     vec3 viewTangent = gl_NormalMatrix * normalize(at_tangent.xyz);

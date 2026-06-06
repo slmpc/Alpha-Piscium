@@ -13,6 +13,7 @@ ivec2 texelPos;
 #include "/util/Translucent.glsl"
 #include "/util/HardcodedPBR.glsl"
 #include "/util/MaterialIDConst.glsl"
+#include "/util/RenderScale.glsl"
 #include "/techniques/Lighting.glsl"
 #include "/techniques/textile/CSR32F.glsl"
 #include "/techniques/WaterWave.glsl"
@@ -272,11 +273,16 @@ float calculateRayBoxIntersection(vec3 p, vec3 d, vec3 halfSize) {
 }
 
 void main() {
+    if (renderScale_isOutsideMainViewport(gl_FragCoord.xy)) {
+        discard;
+        return;
+    }
+
     texelPos = ivec2(gl_FragCoord.xy);
     materialID = bitfieldExtract(frag_materialID, 0, 16);
     isWater = materialID == MATERIAL_ID_WATER;
 
-    vec2 screenPos = gl_FragCoord.xy * uval_viewImageSizeRcp;
+    vec2 screenPos = gl_FragCoord.xy * uval_mainImageSizeRcp;
     viewPos = coords_toViewCoord(screenPos, frag_viewZ, global_camProjInverse);
 
     float solidViewZ = texelFetch(usam_gbufferSolidViewZ, texelPos, 0).r;

@@ -2,7 +2,7 @@
 #include "/util/AgxInvertible.glsl"
 #include "/techniques/debug/DebugOutput.glsl"
 
-const vec2 workGroupsRender = vec2(SETTING_RENDER_SCALE, SETTING_RENDER_SCALE);
+const vec2 workGroupsRender = vec2(RENDER_SCALE_FACTOR, RENDER_SCALE_FACTOR);
 
 layout(rgba16f) uniform restrict writeonly image2D uimg_main;
 layout(rgba16f) uniform restrict image2D uimg_rgba16f;

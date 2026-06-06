@@ -41,7 +41,7 @@ vec4 final_sampleMainUpscaled(vec2 screenUV) {
 void main() {
     ivec2 texelPos = ivec2(gl_FragCoord.xy);
     float ditherNoise = rand_IGN(texelPos, frameCounter);
-    if (SETTING_RENDER_SCALE < 0.999) {
+    if (RENDER_SCALE_FACTOR < 0.999) {
         vec2 screenUV = (vec2(texelPos) + 0.5) * uval_viewImageSizeRcp;
         rt_out = final_sampleMainUpscaled(screenUV);
     } else {

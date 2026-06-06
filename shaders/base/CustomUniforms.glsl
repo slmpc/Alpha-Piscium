@@ -30,6 +30,7 @@ uniform vec2 uval_mainImageSize;
 uniform vec2 uval_mainImageSizeRcp;
 uniform int uval_mainImageSizeIX;
 uniform int uval_mainImageSizeIY;
+uniform vec2 uval_mainImageScale;
 
 uniform vec3 uval_cameraDelta;
 
@@ -45,4 +46,28 @@ ivec2 uval_restirSpatialTileOffset = ivec2(uval_restirSpatialTileOffsetX, uval_r
 ivec2 uval_viewImageSizeI = ivec2(uval_viewImageSizeIX, uval_viewImageSizeIY);
 ivec2 uval_mainImageSizeI = ivec2(uval_mainImageSizeIX, uval_mainImageSizeIY);
 
-const vec2 RENDER_SCALE_WORKGROUPS = vec2(SETTING_RENDER_SCALE, SETTING_RENDER_SCALE);
+#if SETTING_RENDER_SCALE == 0
+const float RENDER_SCALE_FACTOR = 0.5;
+#elif SETTING_RENDER_SCALE == 1
+const float RENDER_SCALE_FACTOR = 0.55;
+#elif SETTING_RENDER_SCALE == 2
+const float RENDER_SCALE_FACTOR = 0.6;
+#elif SETTING_RENDER_SCALE == 3
+const float RENDER_SCALE_FACTOR = 0.65;
+#elif SETTING_RENDER_SCALE == 4
+const float RENDER_SCALE_FACTOR = 0.7;
+#elif SETTING_RENDER_SCALE == 5
+const float RENDER_SCALE_FACTOR = 0.75;
+#elif SETTING_RENDER_SCALE == 6
+const float RENDER_SCALE_FACTOR = 0.8;
+#elif SETTING_RENDER_SCALE == 7
+const float RENDER_SCALE_FACTOR = 0.85;
+#elif SETTING_RENDER_SCALE == 8
+const float RENDER_SCALE_FACTOR = 0.9;
+#elif SETTING_RENDER_SCALE == 9
+const float RENDER_SCALE_FACTOR = 0.95;
+#else
+const float RENDER_SCALE_FACTOR = 1.0;
+#endif
+
+const vec2 RENDER_SCALE_WORKGROUPS = vec2(RENDER_SCALE_FACTOR, RENDER_SCALE_FACTOR);

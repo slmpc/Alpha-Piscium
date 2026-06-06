@@ -10,7 +10,7 @@
 #include "/techniques/ffx/spd/SPD.comp.glsl"
 
 layout(rgba32ui) uniform coherent uimage2D uimg_rgba32ui;
-const vec2 workGroupsRender = vec2(0.25 * SETTING_RENDER_SCALE, 0.25 * SETTING_RENDER_SCALE);
+const vec2 workGroupsRender = vec2(0.25 * RENDER_SCALE_FACTOR, 0.25 * RENDER_SCALE_FACTOR);
 
 shared ivec2 shared_mipTile6;
 
